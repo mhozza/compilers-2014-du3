@@ -373,8 +373,8 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                         String delimiter = "";
                         if (!first) {
                                 delimiter = ", ";
-                                first = false;
                         }
+                        first = false;
                         param_list += delimiter + "i32 " + p.register;
                         ST template = new ST(
                                 "<mem_register> = alloca i32\n" +
@@ -411,11 +411,57 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
 
         @Override public CodeFragment visitParam_decl(calculatorParser.Param_declContext ctx) {
                 ParamsCodeFragment code = new ParamsCodeFragment();
-                 for(calculatorParser.LvalueContext var: ctx.lvalue()) {
-                        String identifier = var.getText();
+                 for(calculatorParser.LvalueContext p: ctx.lvalue()) {
+                        String identifier = p.getText();
                         code.addParam(generateNewRegister(), identifier);
                 }
                 return (CodeFragment) code;
+        }
+
+        @Override public CodeFragment visitParam_call(calculatorParser.Param_callContext ctx) {
+                ParamsCodeFragment code = new ParamsCodeFragment();
+                 for(calculatorParser.ExpressionContext p: ctx.expression()) {
+                        CodeFragment e = visit(p);
+                        code.addCode(e);
+                        code.addParam(e.getRegister(), "");
+                }
+                return (CodeFragment) code;
+        }
+
+        @Override public CodeFragment visitFunc_call(calculatorParser.Func_callContext ctx) {
+                String identifier = ctx.lvalue().getText();
+                String function_name = "!\"Unknown identifier\"";
+                if (!functions.containsKey(identifier)) {
+                        System.err.println(String.format("Error: idenifier '%s' does not exists", identifier));
+                } else {
+                        function_name = functions.get(identifier);
+                }
+
+                ParamsCodeFragment params = (ParamsCodeFragment) visit(ctx.param_call());
+                String param_list = "";
+                boolean first = true;
+                for (ParamsCodeFragment.Param p: params.getParams()) {
+                        String delimiter = "";
+                        if (!first) {
+                                delimiter = ", ";
+                        }
+                        first = false;
+                        param_list += delimiter + "i32 " + p.register;
+                }
+
+                CodeFragment code = new CodeFragment();
+                ST template = new ST(
+                        "<params_code>" +
+                        "<value_register> = call i32 <function_name>(<params>)\n"
+                );
+                template.add("function_name", function_name);
+                template.add("params_code", params);
+                template.add("params", param_list);
+                String value_register = generateNewRegister();
+                template.add("value_register", value_register);
+                code.addCode(template.render());
+                code.setRegister(value_register);
+                return code;
         }
 
 

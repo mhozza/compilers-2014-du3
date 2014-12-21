@@ -2,16 +2,16 @@
 a = 10
 b = 20
 foo(bar) {
-    a = 47
-    return a * bar
+    fooa = 47
+    return fooa * bar
 }
 
 fourtyseven() {
     return 47
 }
 
-add(a, b) {
-    return a + b
+add(adda, addb) {
+    return adda + addb
 }
 
 c = 30
@@ -30,3 +30,6 @@ a * b
 b / a
 a ^ 5
 
+f = foo(42)
+f
+add(1, 2)
