@@ -4,12 +4,31 @@ init: statements;
 
 statements: statement (NEWLINE statement)*;
 
+param_call:
+     expression (',' expression)*
+     |
+     ;
+
+func_call:
+     lvalue '(' param_call ')';
+
+
+param_decl:
+     lvalue (',' lvalue)*
+     |
+     ;
+
+func_decl:
+     lvalue '(' param_decl ')' BLOCK_START statements BLOCK_END;
+
 statement:
      lvalue ASSIGN expression                           # Assign
      | expression                                       # Print
      | BLOCK_START statements BLOCK_END                 # Block
      | IF expression ':' tr=statement (ELSE fa=statement)?  # If
      | WHILE expression statement                       # While
+     | func_decl                                        # FuncDecl
+     | 'return' expression                              # Ret
      |                                                  # Emp
      ;
 
@@ -23,6 +42,8 @@ expression:
      | expression op=AND expression                      # And
      | expression op=OR expression                       # Or
      | PAREN_OPEN expression PAREN_CLOSE                 # Par
+     | '(' expression ',' expression ')'                 # Pair
+     | func_call                                         # FuncCall
      | STRING                                            # Var
      | INT                                               # Int
      ;

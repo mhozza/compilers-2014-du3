@@ -16,6 +16,18 @@ public class calculatorBaseListener implements calculatorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterRet(@NotNull calculatorParser.RetContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRet(@NotNull calculatorParser.RetContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPar(@NotNull calculatorParser.ParContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -40,18 +52,6 @@ public class calculatorBaseListener implements calculatorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInit(@NotNull calculatorParser.InitContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitInit(@NotNull calculatorParser.InitContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterOr(@NotNull calculatorParser.OrContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -64,18 +64,6 @@ public class calculatorBaseListener implements calculatorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMul(@NotNull calculatorParser.MulContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitMul(@NotNull calculatorParser.MulContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterVar(@NotNull calculatorParser.VarContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -83,18 +71,6 @@ public class calculatorBaseListener implements calculatorListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitVar(@NotNull calculatorParser.VarContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterEmp(@NotNull calculatorParser.EmpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitEmp(@NotNull calculatorParser.EmpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -124,13 +100,13 @@ public class calculatorBaseListener implements calculatorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWhile(@NotNull calculatorParser.WhileContext ctx) { }
+	@Override public void enterFunc_call(@NotNull calculatorParser.Func_callContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitWhile(@NotNull calculatorParser.WhileContext ctx) { }
+	@Override public void exitFunc_call(@NotNull calculatorParser.Func_callContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -155,6 +131,114 @@ public class calculatorBaseListener implements calculatorListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPrint(@NotNull calculatorParser.PrintContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPair(@NotNull calculatorParser.PairContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPair(@NotNull calculatorParser.PairContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterInit(@NotNull calculatorParser.InitContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitInit(@NotNull calculatorParser.InitContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMul(@NotNull calculatorParser.MulContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMul(@NotNull calculatorParser.MulContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterParam_decl(@NotNull calculatorParser.Param_declContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitParam_decl(@NotNull calculatorParser.Param_declContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEmp(@NotNull calculatorParser.EmpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEmp(@NotNull calculatorParser.EmpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterParam_call(@NotNull calculatorParser.Param_callContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitParam_call(@NotNull calculatorParser.Param_callContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterWhile(@NotNull calculatorParser.WhileContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitWhile(@NotNull calculatorParser.WhileContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFunc_decl(@NotNull calculatorParser.Func_declContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunc_decl(@NotNull calculatorParser.Func_declContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFuncCall(@NotNull calculatorParser.FuncCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFuncCall(@NotNull calculatorParser.FuncCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -239,6 +323,18 @@ public class calculatorBaseListener implements calculatorListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitIf(@NotNull calculatorParser.IfContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFuncDecl(@NotNull calculatorParser.FuncDeclContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFuncDecl(@NotNull calculatorParser.FuncDeclContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
