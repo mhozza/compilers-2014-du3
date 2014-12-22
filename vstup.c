@@ -2,8 +2,8 @@
 a = 10
 b = 20
 foo(bar) {
-    fooa = 47
-    return fooa * bar
+    a = 47
+    return a * bar
 }
 
 fourtyseven() {

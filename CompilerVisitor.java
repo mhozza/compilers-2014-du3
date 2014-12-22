@@ -361,6 +361,8 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
         }
 
         @Override public CodeFragment visitFunc_decl(calculatorParser.Func_declContext ctx) {
+                Map<String, String> mem_bkp = mem;
+                mem = new HashMap<String, String>();
                 String identifier = ctx.lvalue().getText();
                 String function_name = this.generateNewFunction();
                 functions.put(identifier, function_name);
@@ -400,6 +402,8 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 template.add("params_code", params+params_code);
                 template.add("body", body_code);
                 function_declarations.addCode(template.render());
+
+                mem = mem_bkp;
                 return new CodeFragment();
         }
 
