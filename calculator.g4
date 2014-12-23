@@ -26,6 +26,7 @@ expression:
      | PAREN_OPEN expression PAREN_CLOSE                 # Par
      | STRING                                            # Var
      | INT                                               # Int
+     | FLOAT                                             # Float
      ;
 
 TYPE_INT: 'int';

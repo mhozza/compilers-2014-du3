@@ -20,3 +20,11 @@ a - b
 a * b
 b / a
 a ^ 5
+float d
+d = 1.5 + 4.0
+d
+
+not 4.25
+
+8.0 and 3.5
+

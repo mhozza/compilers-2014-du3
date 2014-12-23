@@ -13,6 +13,10 @@ class Variable {
                 this.register = register;
                 this.type = type;
         }
+
+        public static String getLLVMType(int type) {
+                return type == Variable.INT ? "i32" : "float";
+        }
 }
 
 public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
@@ -48,7 +52,8 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
         @Override
         public CodeFragment visitAssign(calculatorParser.AssignContext ctx) {
                 CodeFragment value = visit(ctx.expression());
-                String mem_register = "!\"Unknown identifier\"";;
+                String mem_register = "!\"Unknown identifier\"";
+                int type = 0;
 
                 String identifier = ctx.lvalue().getText();
                 Map<String, Variable> mem = findVarTable(identifier);
@@ -56,28 +61,36 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                         System.err.println(String.format("Error: idenifier '%s' does not exists", identifier));
                 } else {
                         mem_register = mem.get(identifier).register;
+                        type = mem.get(identifier).type;
                 }
                 ST template = new ST(
                         "<value_code>" +
-                        "store i32 <value_register>, i32* <mem_register>\n"
+                        "store <type> <value_register>, <type>* <mem_register>\n"
                 );
                 template.add("value_code", value);
                 template.add("value_register", value.getRegister());
                 template.add("mem_register", mem_register);
+                template.add("type", Variable.getLLVMType(type));
+
                 CodeFragment ret = new CodeFragment();
                 ret.addCode(template.render());
                 ret.setRegister(value.getRegister());
+                ret.setType(type);
                 return ret;
         }
 
         @Override
         public CodeFragment visitPrint(calculatorParser.PrintContext ctx) {
                 CodeFragment code = visit(ctx.expression());
+                String func = code.getType() == Variable.INT ? "printInt" : "printFloat";
+                String type = Variable.getLLVMType(code.getType());
                 ST template = new ST(
                         "<value_code>" +
-                        "call i32 @printInt (i32 <value>)\n"
+                        "call i32 @<func> (<type> <value>)\n"
                 );
                 template.add("value_code", code);
+                template.add("func", func);
+                template.add("type", type);
                 template.add("value", code.getRegister());
 
                 CodeFragment ret = new CodeFragment();
@@ -86,40 +99,85 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
         }
 
         public CodeFragment generateBinaryOperatorCodeFragment(CodeFragment left, CodeFragment right, Integer operator) {
-                String code_stub = "<ret> = <instruction> i32 <left_val>, <right_val>\n";
-                String instruction = "or";
-                switch (operator) {
-                        case calculatorParser.ADD:
-                                instruction = "add";
-                                break;
-                        case calculatorParser.SUB:
-                                instruction = "sub";
-                                break;
-                        case calculatorParser.MUL:
-                                instruction = "mul";
-                                break;
-                        case calculatorParser.DIV:
-                                instruction = "sdiv";
-                                break;
-                        case calculatorParser.EXP:
-                                instruction = "@iexp";
-                                code_stub = "<ret> = call i32 <instruction>(i32 <left_val>, i32 <right_val>)\n";
-                                break;
-                        case calculatorParser.AND:
-                                instruction = "and";
-                        case calculatorParser.OR:
-                                ST temp = new ST(
-                                        "<r1> = icmp ne i32 \\<left_val>, 0\n" +
-                                        "<r2> = icmp ne i32 \\<right_val>, 0\n" +
-                                        "<r3> = \\<instruction> i1 <r1>, <r2>\n" +
-                                        "\\<ret> = zext i1 <r3> to i32\n"
-                                );
-                                temp.add("r1", this.generateNewRegister());
-                                temp.add("r2", this.generateNewRegister());
-                                temp.add("r3", this.generateNewRegister());
-                                code_stub = temp.render();
-                                break;
+                if (left.getType() != right.getType()) {
+                        System.err.println("Error: incompatible types");
+                        return null;
                 }
+
+                String code_stub = "<ret> = <instruction> <type> <left_val>, <right_val>\n";
+                String instruction = "or";
+
+                if (left.getType() == Variable.INT) {
+                        switch (operator) {
+                                case calculatorParser.ADD:
+                                        instruction = "add";
+                                        break;
+                                case calculatorParser.SUB:
+                                        instruction = "sub";
+                                        break;
+                                case calculatorParser.MUL:
+                                        instruction = "mul";
+                                        break;
+                                case calculatorParser.DIV:
+                                        instruction = "sdiv";
+                                        break;
+                                case calculatorParser.EXP:
+                                        instruction = "@iexp";
+                                        code_stub = "<ret> = call i32 <instruction>(i32 <left_val>, i32 <right_val>)\n";
+                                        break;
+                                case calculatorParser.AND:
+                                        instruction = "and";
+                                case calculatorParser.OR:
+                                        ST temp = new ST(
+                                                "<r1> = icmp ne i32 \\<left_val>, 0\n" +
+                                                "<r2> = icmp ne i32 \\<right_val>, 0\n" +
+                                                "<r3> = \\<instruction> i1 <r1>, <r2>\n" +
+                                                "\\<ret> = zext i1 <r3> to i32\n"
+                                        );
+                                        temp.add("r1", this.generateNewRegister());
+                                        temp.add("r2", this.generateNewRegister());
+                                        temp.add("r3", this.generateNewRegister());
+                                        code_stub = temp.render();
+                                        break;
+                        }
+                } else {
+                        switch (operator) {
+                                case calculatorParser.ADD:
+                                        instruction = "fadd";
+                                        break;
+                                case calculatorParser.SUB:
+                                        instruction = "fsub";
+                                        break;
+                                case calculatorParser.MUL:
+                                        instruction = "fmul";
+                                        break;
+                                case calculatorParser.DIV:
+                                        instruction = "fdiv";
+                                        break;
+                                case calculatorParser.EXP:
+                                        instruction = "@fexp";
+                                        code_stub = "<ret> = call float <instruction>(float <left_val>, float <right_val>)\n";
+                                        break;
+                                case calculatorParser.AND:
+                                        instruction = "and";
+                                case calculatorParser.OR:
+                                        ST temp = new ST(
+                                                "<r1> = fcmp une float \\<left_val>, 0.0\n" +
+                                                "<r2> = fcmp une float \\<right_val>, 0.0\n" +
+                                                "<r3> = \\<instruction> i1 <r1>, <r2>\n" +
+
+                                                "\\<ret> = uitofp i1 <r3> to float\n"
+                                        );
+                                        temp.add("r1", this.generateNewRegister());
+                                        temp.add("r2", this.generateNewRegister());
+                                        temp.add("r3", this.generateNewRegister());
+                                        code_stub = temp.render();
+                                        break;
+                        }
+                }
+
+
+
                 ST template = new ST(
                         "<left_code>" +
                         "<right_code>" +
@@ -128,6 +186,7 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 template.add("left_code", left);
                 template.add("right_code", right);
                 template.add("instruction", instruction);
+                template.add("type", Variable.getLLVMType(left.getType()));
                 template.add("left_val", left.getRegister());
                 template.add("right_val", right.getRegister());
                 String ret_register = this.generateNewRegister();
@@ -136,6 +195,7 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 CodeFragment ret = new CodeFragment();
                 ret.setRegister(ret_register);
                 ret.addCode(template.render());
+                ret.setType(left.getType());
                 return ret;
 
         }
@@ -146,18 +206,35 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 }
 
                 String code_stub = "";
-                switch(operator) {
-                        case calculatorParser.SUB:
-                                code_stub = "<ret> = sub i32 0, <input>\n";
-                                break;
-                        case calculatorParser.NOT:
-                                ST temp = new ST(
-                                        "<r> = icmp eq i32 \\<input>, 0\n" +
-                                        "\\<ret> = zext i1 <r> to i32\n"
-                                );
-                                temp.add("r", this.generateNewRegister());
-                                code_stub = temp.render();
-                                break;
+
+                if (code.getType() == Variable.INT) {
+                        switch(operator) {
+                                case calculatorParser.SUB:
+                                        code_stub = "<ret> = sub i32 0, <input>\n";
+                                        break;
+                                case calculatorParser.NOT:
+                                        ST temp = new ST(
+                                                "<r> = icmp eq i32 \\<input>, 0\n" +
+                                                "\\<ret> = zext i1 <r> to i32\n"
+                                        );
+                                        temp.add("r", this.generateNewRegister());
+                                        code_stub = temp.render();
+                                        break;
+                        }
+                } else {
+                        switch(operator) {
+                                case calculatorParser.SUB:
+                                        code_stub = "<ret> = fsub float 0.0, <input>\n";
+                                        break;
+                                case calculatorParser.NOT:
+                                        ST temp = new ST(
+                                                "<r> = fcmp ueq float \\<input>, 0.0\n" +
+                                                "\\<ret> = uitofp i1 <r> to float\n"
+                                        );
+                                        temp.add("r", this.generateNewRegister());
+                                        code_stub = temp.render();
+                                        break;
+                        }
                 }
                 ST template = new ST("<code>" + code_stub);
                 String ret_register = this.generateNewRegister();
@@ -168,6 +245,7 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 CodeFragment ret = new CodeFragment();
                 ret.setRegister(ret_register);
                 ret.addCode(template.render());
+                ret.setType(code.getType());
                 return ret;
 
         }
@@ -219,14 +297,17 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 CodeFragment code = new CodeFragment();
                 String register = generateNewRegister();
                 String pointer = "!\"Unknown identifier\"";
+                int type = 0;
                 Map<String, Variable> mem = findVarTable(id);
                 if (mem == null) {
                         System.err.println(String.format("Error: idenifier '%s' does not exists", id));
                 } else {
                         pointer = mem.get(id).register;
+                        type = mem.get(id).type;
                 }
-                code.addCode(String.format("%s = load i32* %s\n", register, pointer));
+                code.addCode(String.format("%s = load %s* %s\n", register, Variable.getLLVMType(type), pointer));
                 code.setRegister(register);
+                code.setType(type);
                 return code;
         }
 
@@ -237,6 +318,18 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 String register = generateNewRegister();
                 code.setRegister(register);
                 code.addCode(String.format("%s = add i32 0, %s\n", register, value));
+                code.setType(Variable.INT);
+                return code;
+        }
+
+        @Override
+        public CodeFragment visitFloat(calculatorParser.FloatContext ctx) {
+                String value = ctx.FLOAT().getText();
+                CodeFragment code = new CodeFragment();
+                String register = generateNewRegister();
+                code.setRegister(register);
+                code.addCode(String.format("%s = fadd float 0.0, %s\n", register, value));
+                code.setType(Variable.FLOAT);
                 return code;
         }
 
@@ -351,7 +444,9 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
 
                 ST template = new ST(
                         "declare i32 @printInt(i32)\n" +
+                        "declare i32 @printFloat(float)\n" +
                         "declare i32 @iexp(i32, i32)\n" +
+                        "declare float @fexp(float, float)\n" +
                         "define i32 @main() {\n" +
                         "start:\n" +
                         "<body_code>" +
@@ -394,9 +489,11 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 mem.put(identifier, new Variable(mem_register, type));
 
                 ST template = new ST(
-                        "<mem_register> = alloca i32\n"
+                        "<mem_register> = alloca <type>\n"
                 );
                 template.add("mem_register", mem_register);
+                template.add("type", Variable.getLLVMType(type));
+
                 CodeFragment ret = new CodeFragment();
                 ret.addCode(template.render());
                 return ret;

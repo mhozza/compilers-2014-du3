@@ -108,6 +108,13 @@ public class calculatorBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitFloat(@NotNull calculatorParser.FloatContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitLvalue(@NotNull calculatorParser.LvalueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
