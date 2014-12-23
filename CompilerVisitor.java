@@ -3,8 +3,20 @@ import java.util.LinkedList;
 import java.util.Map;
 import org.stringtemplate.v4.*;
 
+class Variable {
+        int type;
+        String register;
+        public static final int INT = calculatorParser.TYPE_INT;
+        public static final int FLOAT = calculatorParser.TYPE_FLOAT;
+
+        public Variable(String register, int type) {
+                this.register = register;
+                this.type = type;
+        }
+}
+
 public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
-        LinkedList<Map<String, String>> mem = new LinkedList<Map<String, String>>();
+        LinkedList<Map<String, Variable>> mem = new LinkedList<Map<String, Variable>>();
         private int labelIndex = 0;
         private int registerIndex = 0;
 
@@ -17,15 +29,15 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
         }
 
         private void addTable() {
-                mem.addFirst(new HashMap<String, String>());
+                mem.addFirst(new HashMap<String, Variable>());
         }
 
         private void removeTable() {
                 mem.removeFirst();
         }
 
-        protected Map<String, String> findVarTable(String identifier) {
-            for (Map<String, String> table : mem) {
+        protected Map<String, Variable> findVarTable(String identifier) {
+            for (Map<String, Variable> table : mem) {
                 if (table.containsKey(identifier)) {
                     return table;
                 }
@@ -39,11 +51,11 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 String mem_register = "!\"Unknown identifier\"";;
 
                 String identifier = ctx.lvalue().getText();
-                Map<String, String> mem = findVarTable(identifier);
+                Map<String, Variable> mem = findVarTable(identifier);
                 if (mem == null) {
                         System.err.println(String.format("Error: idenifier '%s' does not exists", identifier));
                 } else {
-                        mem_register = mem.get(identifier);
+                        mem_register = mem.get(identifier).register;
                 }
                 ST template = new ST(
                         "<value_code>" +
@@ -207,11 +219,11 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 CodeFragment code = new CodeFragment();
                 String register = generateNewRegister();
                 String pointer = "!\"Unknown identifier\"";
-                Map<String, String> mem = findVarTable(id);
+                Map<String, Variable> mem = findVarTable(id);
                 if (mem == null) {
                         System.err.println(String.format("Error: idenifier '%s' does not exists", id));
                 } else {
-                        pointer = mem.get(id);
+                        pointer = mem.get(id).register;
                 }
                 code.addCode(String.format("%s = load i32* %s\n", register, pointer));
                 code.setRegister(register);
@@ -374,11 +386,12 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 String mem_register;
                 String code_stub = "";
 
+                int type = ctx.type.getType();
                 String identifier = ctx.lvalue().getText();
-                Map<String, String> mem = this.mem.getFirst();
+                Map<String, Variable> mem = this.mem.getFirst();
 
                 mem_register = this.generateNewRegister();
-                mem.put(identifier, mem_register);
+                mem.put(identifier, new Variable(mem_register, type));
 
                 ST template = new ST(
                         "<mem_register> = alloca i32\n"

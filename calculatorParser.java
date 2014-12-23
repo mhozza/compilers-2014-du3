@@ -16,12 +16,12 @@ public class calculatorParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__2=1, T__1=2, T__0=3, INT=4, FLOAT=5, MUL=6, DIV=7, ADD=8, SUB=9, EXP=10, 
-		WHITESPACE=11, NEWLINE=12, ASSIGN=13, BLOCK_START=14, BLOCK_END=15, IF=16, 
-		ELSE=17, WHILE=18, AND=19, OR=20, NOT=21, PAREN_OPEN=22, PAREN_CLOSE=23, 
+		T__0=1, TYPE_INT=2, TYPE_FLOAT=3, INT=4, FLOAT=5, MUL=6, DIV=7, ADD=8, 
+		SUB=9, EXP=10, WHITESPACE=11, NEWLINE=12, ASSIGN=13, BLOCK_START=14, BLOCK_END=15, 
+		IF=16, ELSE=17, WHILE=18, AND=19, OR=20, NOT=21, PAREN_OPEN=22, PAREN_CLOSE=23, 
 		STRING=24;
 	public static final String[] tokenNames = {
-		"<INVALID>", "'int'", "'float'", "':'", "INT", "FLOAT", "'*'", "'/'", 
+		"<INVALID>", "':'", "'int'", "'float'", "INT", "FLOAT", "'*'", "'/'", 
 		"'+'", "'-'", "'^'", "WHITESPACE", "'\n'", "'='", "'{'", "'}'", "'if'", 
 		"'else'", "'while'", "'and'", "'or'", "'not'", "'('", "')'", "STRING"
 	};
@@ -345,7 +345,7 @@ public class calculatorParser extends Parser {
 				setState(24);
 				((DeclareContext)_localctx).type = _input.LT(1);
 				_la = _input.LA(1);
-				if ( !(_la==T__2 || _la==T__1) ) {
+				if ( !(_la==TYPE_INT || _la==TYPE_FLOAT) ) {
 					((DeclareContext)_localctx).type = (Token)_errHandler.recoverInline(this);
 				}
 				consume();
@@ -876,12 +876,12 @@ public class calculatorParser extends Parser {
 		"\3\4\5\4(\n\4\3\4\3\4\3\4\3\4\3\4\5\4/\n\4\3\5\3\5\3\6\3\6\3\6\3\6\3\6"+
 		"\3\6\3\6\3\6\3\6\3\6\3\6\5\6>\n\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6"+
 		"\3\6\3\6\3\6\3\6\3\6\3\6\7\6O\n\6\f\6\16\6R\13\6\3\6\2\3\n\7\2\4\6\b\n"+
-		"\2\5\3\2\3\4\3\2\n\13\3\2\b\t_\2\f\3\2\2\2\4\16\3\2\2\2\6.\3\2\2\2\b\60"+
+		"\2\5\3\2\4\5\3\2\n\13\3\2\b\t_\2\f\3\2\2\2\4\16\3\2\2\2\6.\3\2\2\2\b\60"+
 		"\3\2\2\2\n=\3\2\2\2\f\r\5\4\3\2\r\3\3\2\2\2\16\23\5\6\4\2\17\20\7\16\2"+
 		"\2\20\22\5\6\4\2\21\17\3\2\2\2\22\25\3\2\2\2\23\21\3\2\2\2\23\24\3\2\2"+
 		"\2\24\5\3\2\2\2\25\23\3\2\2\2\26\27\5\b\5\2\27\30\7\17\2\2\30\31\5\n\6"+
 		"\2\31/\3\2\2\2\32\33\t\2\2\2\33/\5\b\5\2\34/\5\n\6\2\35\36\7\20\2\2\36"+
-		"\37\5\4\3\2\37 \7\21\2\2 /\3\2\2\2!\"\7\22\2\2\"#\5\n\6\2#$\7\5\2\2$\'"+
+		"\37\5\4\3\2\37 \7\21\2\2 /\3\2\2\2!\"\7\22\2\2\"#\5\n\6\2#$\7\3\2\2$\'"+
 		"\5\6\4\2%&\7\23\2\2&(\5\6\4\2\'%\3\2\2\2\'(\3\2\2\2(/\3\2\2\2)*\7\24\2"+
 		"\2*+\5\n\6\2+,\5\6\4\2,/\3\2\2\2-/\3\2\2\2.\26\3\2\2\2.\32\3\2\2\2.\34"+
 		"\3\2\2\2.\35\3\2\2\2.!\3\2\2\2.)\3\2\2\2.-\3\2\2\2/\7\3\2\2\2\60\61\7"+

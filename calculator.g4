@@ -28,6 +28,8 @@ expression:
      | INT                                               # Int
      ;
 
+TYPE_INT: 'int';
+TYPE_FLOAT: 'float';
 INT: DIGIT+;
 FLOAT: DIGIT+ '.' DIGIT*;
 MUL: '*';
