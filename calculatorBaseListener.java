@@ -136,6 +136,18 @@ public class calculatorBaseListener implements calculatorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDeclare(@NotNull calculatorParser.DeclareContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDeclare(@NotNull calculatorParser.DeclareContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterInt(@NotNull calculatorParser.IntContext ctx) { }
 	/**
 	 * {@inheritDoc}

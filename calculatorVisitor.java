@@ -79,6 +79,13 @@ public interface calculatorVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitWhile(@NotNull calculatorParser.WhileContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code Declare}
+	 * labeled alternative in {@link calculatorParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDeclare(@NotNull calculatorParser.DeclareContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code Int}
 	 * labeled alternative in {@link calculatorParser#expression}.
 	 * @param ctx the parse tree

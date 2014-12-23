@@ -1,9 +1,10 @@
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import org.stringtemplate.v4.*;
 
 public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
-        private Map<String, String> mem = new HashMap<String, String>();
+        LinkedList<Map<String, String>> mem = new LinkedList<Map<String, String>>();
         private int labelIndex = 0;
         private int registerIndex = 0;
 
@@ -15,23 +16,37 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 return String.format("%%R%d", this.registerIndex++);
         }
 
+        private void addTable() {
+                mem.addFirst(new HashMap<String, String>());
+        }
+
+        private void removeTable() {
+                mem.removeFirst();
+        }
+
+        protected Map<String, String> findVarTable(String identifier) {
+            for (Map<String, String> table : mem) {
+                if (table.containsKey(identifier)) {
+                    return table;
+                }
+            }
+            return null;
+        }
+
         @Override
         public CodeFragment visitAssign(calculatorParser.AssignContext ctx) {
                 CodeFragment value = visit(ctx.expression());
-                String mem_register;
-                String code_stub = "";
+                String mem_register = "!\"Unknown identifier\"";;
 
                 String identifier = ctx.lvalue().getText();
-                if (!mem.containsKey(identifier)) {
-                        mem_register = this.generateNewRegister();
-                        code_stub = "<mem_register> = alloca i32\n";
-                        mem.put(identifier, mem_register);
+                Map<String, String> mem = findVarTable(identifier);
+                if (mem == null) {
+                        System.err.println(String.format("Error: idenifier '%s' does not exists", identifier));
                 } else {
                         mem_register = mem.get(identifier);
                 }
                 ST template = new ST(
-                        "<value_code>" + 
-                        code_stub + 
+                        "<value_code>" +
                         "store i32 <value_register>, i32* <mem_register>\n"
                 );
                 template.add("value_code", value);
@@ -47,12 +62,12 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
         public CodeFragment visitPrint(calculatorParser.PrintContext ctx) {
                 CodeFragment code = visit(ctx.expression());
                 ST template = new ST(
-                        "<value_code>" + 
+                        "<value_code>" +
                         "call i32 @printInt (i32 <value>)\n"
                 );
                 template.add("value_code", code);
                 template.add("value", code.getRegister());
-                
+
                 CodeFragment ret = new CodeFragment();
                 ret.addCode(template.render());
                 return ret;
@@ -94,8 +109,8 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                                 break;
                 }
                 ST template = new ST(
-                        "<left_code>" + 
-                        "<right_code>" + 
+                        "<left_code>" +
+                        "<right_code>" +
                         code_stub
                 );
                 template.add("left_code", left);
@@ -105,14 +120,14 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 template.add("right_val", right.getRegister());
                 String ret_register = this.generateNewRegister();
                 template.add("ret", ret_register);
-                
+
                 CodeFragment ret = new CodeFragment();
                 ret.setRegister(ret_register);
                 ret.addCode(template.render());
                 return ret;
-        
+
         }
-        
+
         public CodeFragment generateUnaryOperatorCodeFragment(CodeFragment code, Integer operator) {
                 if (operator == calculatorParser.ADD) {
                         return code;
@@ -125,7 +140,7 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                                 break;
                         case calculatorParser.NOT:
                                 ST temp = new ST(
-                                        "<r> = icmp eq i32 \\<input>, 0\n" + 
+                                        "<r> = icmp eq i32 \\<input>, 0\n" +
                                         "\\<ret> = zext i1 <r> to i32\n"
                                 );
                                 temp.add("r", this.generateNewRegister());
@@ -138,11 +153,11 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 template.add("ret", ret_register);
                 template.add("input", code.getRegister());
 
-                CodeFragment ret = new CodeFragment();        
+                CodeFragment ret = new CodeFragment();
                 ret.setRegister(ret_register);
                 ret.addCode(template.render());
                 return ret;
-                
+
         }
 
         @Override
@@ -154,7 +169,7 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 );
         }
 
-        @Override 
+        @Override
         public CodeFragment visitMul(calculatorParser.MulContext ctx) {
                 return generateBinaryOperatorCodeFragment(
                         visit(ctx.expression(0)),
@@ -163,7 +178,7 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 );
         }
 
-        @Override 
+        @Override
         public CodeFragment visitExp(calculatorParser.ExpContext ctx) {
                 return generateBinaryOperatorCodeFragment(
                         visit(ctx.expression(0)),
@@ -192,9 +207,9 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 CodeFragment code = new CodeFragment();
                 String register = generateNewRegister();
                 String pointer = "!\"Unknown identifier\"";
-                if (!mem.containsKey(id)) {
+                Map<String, String> mem = findVarTable(id);
+                if (mem == null) {
                         System.err.println(String.format("Error: idenifier '%s' does not exists", id));
-
                 } else {
                         pointer = mem.get(id);
                 }
@@ -213,27 +228,30 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 return code;
         }
 
-        @Override 
+        @Override
         public CodeFragment visitBlock(calculatorParser.BlockContext ctx) {
-                return visit(ctx.statements());
+                addTable();
+                CodeFragment res = visit(ctx.statements());
+                removeTable();
+                return res;
         }
 
-        @Override 
+        @Override
         public CodeFragment visitIf(calculatorParser.IfContext ctx) {
                 CodeFragment condition = visit(ctx.expression());
                 CodeFragment statement_true = visit(ctx.statement(0));
                 CodeFragment statement_false = visit(ctx.statement(1));
 
                 ST template = new ST(
-                        "<condition_code>" + 
-                        "<cmp_reg> = icmp ne i32 <con_reg>, 0\n" + 
+                        "<condition_code>" +
+                        "<cmp_reg> = icmp ne i32 <con_reg>, 0\n" +
                         "br i1 <cmp_reg>, label %<block_true>, label %<block_false>\n" +
                         "<block_true>:\n" +
                         "<statement_true_code>" +
-                        "br label %<block_end>\n" + 
-                        "<block_false>:\n" + 
+                        "br label %<block_end>\n" +
+                        "<block_false>:\n" +
                         "<statement_false_code>" +
-                        "br label %<block_end>\n" + 
+                        "br label %<block_end>\n" +
                         "<block_end>:\n" +
                         "<ret> = add i32 0, 0\n"
                 );
@@ -247,7 +265,7 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 template.add("block_end", this.generateNewLabel());
                 String return_register = generateNewRegister();
                 template.add("ret", return_register);
-                
+
                 CodeFragment ret = new CodeFragment();
                 ret.setRegister(return_register);
                 ret.addCode(template.render());
@@ -259,17 +277,17 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
         public CodeFragment visitWhile(calculatorParser.WhileContext ctx) {
                 CodeFragment condition = visit(ctx.expression());
                 CodeFragment body = visit(ctx.statement());
-                
+
                 ST template = new ST(
-                        "br label %<cmp_label>\n" + 
-                        "<cmp_label>:\n" + 
+                        "br label %<cmp_label>\n" +
+                        "<cmp_label>:\n" +
                         "<condition_code>" +
-                        "<cmp_register> = icmp ne i32 <condition_register>, 0\n" + 
-                        "br i1 <cmp_register>, label %<body_label>, label %<end_label>\n" + 
-                        "<body_label>:\n" + 
-                        "<body_code>" + 
-                        "br label %<cmp_label>\n" + 
-                        "<end_label>:\n" + 
+                        "<cmp_register> = icmp ne i32 <condition_register>, 0\n" +
+                        "br i1 <cmp_register>, label %<body_label>, label %<end_label>\n" +
+                        "<body_label>:\n" +
+                        "<body_code>" +
+                        "br label %<cmp_label>\n" +
+                        "<end_label>:\n" +
                         "<ret> = add i32 0, 0\n"
                 );
                 template.add("cmp_label", generateNewLabel());
@@ -281,14 +299,14 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 template.add("body_code", body);
                 String end_register = generateNewRegister();
                 template.add("ret", end_register);
-                
+
                 CodeFragment ret = new CodeFragment();
                 ret.addCode(template.render());
                 ret.setRegister(end_register);
                 return ret;
         }
 
-        @Override 
+        @Override
         public CodeFragment visitNot(calculatorParser.NotContext ctx) {
                 return generateUnaryOperatorCodeFragment(
                         visit(ctx.expression()),
@@ -316,14 +334,15 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
 
         @Override
         public CodeFragment visitInit(calculatorParser.InitContext ctx) {
+                addTable();
                 CodeFragment body = visit(ctx.statements());
 
                 ST template = new ST(
-                        "declare i32 @printInt(i32)\n" + 
-                        "declare i32 @iexp(i32, i32)\n" + 
-                        "define i32 @main() {\n" + 
-                        "start:\n" + 
-                        "<body_code>" + 
+                        "declare i32 @printInt(i32)\n" +
+                        "declare i32 @iexp(i32, i32)\n" +
+                        "define i32 @main() {\n" +
+                        "start:\n" +
+                        "<body_code>" +
                         "ret i32 0\n" +
                         "}\n"
                 );
@@ -334,7 +353,7 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 code.setRegister(body.getRegister());
                 return code;
         }
-        
+
         @Override
         public CodeFragment visitStatements(calculatorParser.StatementsContext ctx) {
                 CodeFragment code = new CodeFragment();
@@ -350,5 +369,25 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
         public CodeFragment visitEmp(calculatorParser.EmpContext ctx) {
                 return new CodeFragment();
         }
+
+        @Override public CodeFragment visitDeclare(calculatorParser.DeclareContext ctx) {
+                String mem_register;
+                String code_stub = "";
+
+                String identifier = ctx.lvalue().getText();
+                Map<String, String> mem = this.mem.getFirst();
+
+                mem_register = this.generateNewRegister();
+                mem.put(identifier, mem_register);
+
+                ST template = new ST(
+                        "<mem_register> = alloca i32\n"
+                );
+                template.add("mem_register", mem_register);
+                CodeFragment ret = new CodeFragment();
+                ret.addCode(template.render());
+                return ret;
+        }
+
 
 }

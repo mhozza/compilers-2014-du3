@@ -124,6 +124,18 @@ public interface calculatorListener extends ParseTreeListener {
 	 */
 	void exitWhile(@NotNull calculatorParser.WhileContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code Declare}
+	 * labeled alternative in {@link calculatorParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterDeclare(@NotNull calculatorParser.DeclareContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code Declare}
+	 * labeled alternative in {@link calculatorParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitDeclare(@NotNull calculatorParser.DeclareContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code Int}
 	 * labeled alternative in {@link calculatorParser#expression}.
 	 * @param ctx the parse tree

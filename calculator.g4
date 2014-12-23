@@ -6,6 +6,7 @@ statements: statement (NEWLINE statement)*;
 
 statement:
      lvalue ASSIGN expression                           # Assign
+     | type=('int' | 'float') lvalue                    # Declare
      | expression                                       # Print
      | BLOCK_START statements BLOCK_END                 # Block
      | IF expression ':' tr=statement (ELSE fa=statement)?  # If
