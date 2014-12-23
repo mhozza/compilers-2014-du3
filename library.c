@@ -28,6 +28,6 @@ float IntToFloat(int a) {
     return (float) a;
 }
 
-int IntToFloat(float a) {
+int FloatToInt(float a) {
     return (int) a;
 }

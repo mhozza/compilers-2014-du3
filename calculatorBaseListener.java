@@ -28,6 +28,18 @@ public class calculatorBaseListener implements calculatorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFloatToInt(@NotNull calculatorParser.FloatToIntContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFloatToInt(@NotNull calculatorParser.FloatToIntContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAdd(@NotNull calculatorParser.AddContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -167,6 +179,18 @@ public class calculatorBaseListener implements calculatorListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPrint(@NotNull calculatorParser.PrintContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterIntToFloat(@NotNull calculatorParser.IntToFloatContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIntToFloat(@NotNull calculatorParser.IntToFloatContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

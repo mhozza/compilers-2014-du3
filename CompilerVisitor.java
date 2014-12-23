@@ -101,7 +101,7 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
         public CodeFragment generateBinaryOperatorCodeFragment(CodeFragment left, CodeFragment right, Integer operator) {
                 if (left.getType() != right.getType()) {
                         System.err.println("Error: incompatible types");
-                        return null;
+                        return new CodeFragment();
                 }
 
                 String code_stub = "<ret> = <instruction> <type> <left_val>, <right_val>\n";
@@ -447,6 +447,8 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                         "declare i32 @printFloat(float)\n" +
                         "declare i32 @iexp(i32, i32)\n" +
                         "declare float @fexp(float, float)\n" +
+                        "declare float @IntToFloat(i32)\n" +
+                        "declare i32 @FloatToInt(float)\n" +
                         "define i32 @main() {\n" +
                         "start:\n" +
                         "<body_code>" +
@@ -498,6 +500,45 @@ public class CompilerVisitor extends calculatorBaseVisitor<CodeFragment> {
                 ret.addCode(template.render());
                 return ret;
         }
+
+        @Override public CodeFragment visitIntToFloat(calculatorParser.IntToFloatContext ctx) {
+                CodeFragment value = visit(ctx.expression());
+                CodeFragment code = new CodeFragment();
+
+                ST template = new ST(
+                        "<value>" +
+                        "<reg> = call float @IntToFloat(i32 <value_register>)"
+                );
+                template.add("value", value);
+                template.add("value_register", value.getRegister());
+                String reg = generateNewRegister();
+                template.add("reg", reg);
+
+                code.addCode(template.render());
+                code.setRegister(reg);
+                code.setType(Variable.FLOAT);
+                return code;
+        }
+
+        @Override public CodeFragment visitFloatToInt(calculatorParser.FloatToIntContext ctx) {
+                CodeFragment value = visit(ctx.expression());
+                CodeFragment code = new CodeFragment();
+
+                ST template = new ST(
+                        "<value>" +
+                        "<reg> = call i32 @FloatToInt(float <value_register>)"
+                );
+                template.add("value", value);
+                template.add("value_register", value.getRegister());
+                String reg = generateNewRegister();
+                template.add("reg", reg);
+
+                code.addCode(template.render());
+                code.setRegister(reg);
+                code.setType(Variable.INT);
+                return code;
+        }
+
 
 
 }

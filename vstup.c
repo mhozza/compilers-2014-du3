@@ -28,3 +28,6 @@ not 4.25
 
 8.0 and 3.5
 
+IntToFloat(4) + 7.5
+
+FloatToInt(4.5) + 7

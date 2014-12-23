@@ -24,6 +24,8 @@ expression:
      | expression op=AND expression                      # And
      | expression op=OR expression                       # Or
      | PAREN_OPEN expression PAREN_CLOSE                 # Par
+     | 'FloatToInt' '(' expression ')'                   # FloatToInt
+     | 'IntToFloat' '(' expression ')'                   # IntToFloat
      | STRING                                            # Var
      | INT                                               # Int
      | FLOAT                                             # Float

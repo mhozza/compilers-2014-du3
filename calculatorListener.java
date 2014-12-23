@@ -20,6 +20,18 @@ public interface calculatorListener extends ParseTreeListener {
 	 */
 	void exitPar(@NotNull calculatorParser.ParContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code FloatToInt}
+	 * labeled alternative in {@link calculatorParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterFloatToInt(@NotNull calculatorParser.FloatToIntContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FloatToInt}
+	 * labeled alternative in {@link calculatorParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitFloatToInt(@NotNull calculatorParser.FloatToIntContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code Add}
 	 * labeled alternative in {@link calculatorParser#expression}.
 	 * @param ctx the parse tree
@@ -159,6 +171,18 @@ public interface calculatorListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPrint(@NotNull calculatorParser.PrintContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code IntToFloat}
+	 * labeled alternative in {@link calculatorParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterIntToFloat(@NotNull calculatorParser.IntToFloatContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code IntToFloat}
+	 * labeled alternative in {@link calculatorParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitIntToFloat(@NotNull calculatorParser.IntToFloatContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code Float}
 	 * labeled alternative in {@link calculatorParser#expression}.

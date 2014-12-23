@@ -2,6 +2,8 @@ declare i32 @printInt(i32)
 declare i32 @printFloat(float)
 declare i32 @iexp(i32, i32)
 declare float @fexp(float, float)
+declare float @IntToFloat(i32)
+declare i32 @FloatToInt(float)
 define i32 @main() {
 start:
 %R0 = add i32 0, 10
@@ -121,5 +123,13 @@ call i32 @printFloat (float %R70)
 %R75 = and i1 %R73, %R74
 %R76 = uitofp i1 %R75 to float
 call i32 @printFloat (float %R76)
+%R77 = add i32 0, 4
+%R78 = call float @IntToFloat(i32 %R77)%R79 = fadd float 0.0, 7.5
+%R80 = fadd float %R78, %R79
+call i32 @printFloat (float %R80)
+%R81 = fadd float 0.0, 4.5
+%R82 = call i32 @FloatToInt(float %R81)%R83 = add i32 0, 7
+%R84 = add i32 %R82, %R83
+call i32 @printInt (i32 %R84)
 ret i32 0
 }

@@ -18,6 +18,13 @@ public interface calculatorVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPar(@NotNull calculatorParser.ParContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code FloatToInt}
+	 * labeled alternative in {@link calculatorParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFloatToInt(@NotNull calculatorParser.FloatToIntContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code Add}
 	 * labeled alternative in {@link calculatorParser#expression}.
 	 * @param ctx the parse tree
@@ -99,6 +106,13 @@ public interface calculatorVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitPrint(@NotNull calculatorParser.PrintContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code IntToFloat}
+	 * labeled alternative in {@link calculatorParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIntToFloat(@NotNull calculatorParser.IntToFloatContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code Float}
 	 * labeled alternative in {@link calculatorParser#expression}.
